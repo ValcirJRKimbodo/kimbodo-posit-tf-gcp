@@ -1,43 +1,44 @@
-name: Terraform CI/CD
+name: Terraform CI/CD (dev-gcp)
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - 'envs/dev-gcp/**'
+    branches: [ main ]
+    paths: [ 'envs/dev-gcp/**' ]
   pull_request:
-    branches:
-      - main
-    paths:
-      - 'envs/dev-gcp/**'
-  workflow_dispatch: 
+    branches: [ main ]
+    paths: [ 'envs/dev-gcp/**' ]
+  workflow_dispatch:
 
 jobs:
   terraform:
-    name: Terraform Plan & Apply (dev-gcp)
+    name: Terraform Plan & Apply (dev‑gcp)
     runs-on: ubuntu-latest
+
+    environment: dev-gcp
 
     container:
       image: kimbodovalcir/kimbodo-posit-actions:latest
 
     defaults:
       run:
+        shell: bash
         working-directory: envs/dev-gcp
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Decode and configure GCP credentials
-        run: |
-          echo "${{ secrets.GOOGLE_CREDENTIALS_B64 }}" | base64 -d > /tmp/sa.json
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
-          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
+      # - name: Set GCP project
+      #   run: gcloud config set project gcp-k8s-demo-posit
 
       - name: Decrypt Terraform SA
-        run: sops -d sa.enc.json > /tmp/terraform-sa.json
+        run: |
+          sops -d sa.enc.json > /tmp/terraform-sa.json
+          echo "Credencial descriptografada em /tmp/terraform-sa.json"
 
       - name: Terraform Init
         run: terraform init
@@ -51,5 +52,5 @@ jobs:
         run: terraform plan -out=tfplan
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
