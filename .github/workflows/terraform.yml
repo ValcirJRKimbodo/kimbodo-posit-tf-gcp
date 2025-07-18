@@ -31,7 +31,7 @@ jobs:
 
       - name: Configure GCP credentials
         run: |
-          echo "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}" > /tmp/sa.json
+          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/sa.json
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
           gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 
@@ -39,7 +39,8 @@ jobs:
         run: sops -d sa.enc.json > /tmp/terraform-sa.json
 
       - name: Terraform Init
-        run: terraform init
+        run: |
+          terraform init
 
       - name: Terraform Format & Validate
         run: |

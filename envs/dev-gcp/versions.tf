@@ -12,5 +12,5 @@ provider "google" {
   project = var.project_id
   region  = var.region
   # Pro tip: use GOOGLE_APPLICATION_CREDENTIALS env var pointing to the JSON key
-  credentials = file("../../terraform-sa.json")
+  # credentials = file("../../terraform-sa.json")
 }
