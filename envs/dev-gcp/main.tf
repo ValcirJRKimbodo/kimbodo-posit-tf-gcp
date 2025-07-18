@@ -38,7 +38,7 @@ module "secondary_nodepool" {
   name               = "secondary"
   cluster_name       = module.gke.cluster_name
   region             = var.region
-  machine_type       = "n1-highmen-4"
+  machine_type       = "n2-highmem-4"
   enable_autoscaling = true
   node_labels = {
     apptype = "sessionsholder"
