@@ -32,9 +32,10 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-      # - name: Set GCP project
-      #   run: gcloud config set project gcp-k8s-demo-posit
-
+      - name: Authorise git with automatic GITHUB_TOKEN
+        run: |
+          git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"   
+     
       - name: Decrypt Terraform SA
         run: |
           sops -d sa.enc.json > /tmp/terraform-sa.json
