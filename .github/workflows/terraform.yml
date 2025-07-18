@@ -32,9 +32,9 @@ jobs:
         with:
           credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
 
-      - name: Authorise git with automatic GITHUB_TOKEN
+      - name: Authorise git with PAT
         run: |
-          git config --global url."https://x-access-token:${{ github.token }}@github.com/".insteadOf "https://github.com/"   
+          git config --global url."https://x-access-token:${{ secrets.GH_PAT_MODULES }}@github.com/".insteadOf "https://github.com/"
      
       - name: Decrypt Terraform SA
         run: |
