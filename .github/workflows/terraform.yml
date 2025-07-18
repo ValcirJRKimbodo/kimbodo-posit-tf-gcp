@@ -31,8 +31,8 @@ jobs:
 
       - name: Configure GCP credentials
         run: |
-          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}'
           echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/sa.json
+          cat /tmp/sa.json
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
           gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 
