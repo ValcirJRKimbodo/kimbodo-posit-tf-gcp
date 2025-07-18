@@ -29,11 +29,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configure GCP credentials
+      - name: Decode and configure GCP credentials
         run: |
-          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/sa.json          
+          echo "${{ secrets.GOOGLE_CREDENTIALS_B64 }}" | base64 -d > /tmp/sa.json
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
-          gcloud auth activate-service-account --key-file=/tmp/sa.json
+          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+
 
       - name: Decrypt Terraform SA
         run: sops -d sa.enc.json > /tmp/terraform-sa.json
