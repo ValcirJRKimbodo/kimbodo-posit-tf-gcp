@@ -31,10 +31,9 @@ jobs:
 
       - name: Configure GCP credentials
         run: |
-          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/sa.json
-          cat /tmp/sa.json
+          echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/sa.json          
           export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
-          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+          gcloud auth activate-service-account --key-file=/tmp/sa.json
 
       - name: Decrypt Terraform SA
         run: sops -d sa.enc.json > /tmp/terraform-sa.json
