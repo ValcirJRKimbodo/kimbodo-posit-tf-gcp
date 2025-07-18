@@ -1,0 +1,59 @@
+name: CI/CD Terraform (dev-gcp)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'envs/dev-gcp/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'envs/dev-gcp/**'
+
+jobs:
+  terraform:
+    name: Terraform Plan & Apply (dev-gcp)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: envs/dev-gcp
+
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+          service_account_key: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}"
+          project_id: 'gcp-k8s-demo-posit'
+
+      - name: Install SOPS
+        run: sudo apt-get update && sudo apt-get install -y sops
+
+      - name: Decrypt Terraform SA
+        run: sops -d sa.enc.json > /tmp/terraform-sa.json
+
+      - name: Set GOOGLE_APPLICATION_CREDENTIALS
+        run: echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/terraform-sa.json" >> $GITHUB_ENV
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format & Validate
+        run: |
+          terraform fmt -check
+          terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve tfplan
