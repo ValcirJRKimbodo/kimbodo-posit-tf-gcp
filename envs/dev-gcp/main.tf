@@ -12,3 +12,12 @@ module "subnet" {
   region          = var.region
   vpc_id          = module.vpc.vpc_id
 }
+module "gke" {
+  source              = "git::https://github.com/nkopskimbodo/kimbodo-tf-multicloud-modules//gcp/gke?ref=feature/add_gcp"
+  cluster_name        = "posit-cluster-mvp"
+  region              = var.region
+  network             = module.vpc.vpc_id
+  subnetwork          = module.subnet.subnet_id
+  pods_range_name     = module.subnet.pods_range_name
+  deletion_protection = false
+}
