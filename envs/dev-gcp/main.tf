@@ -21,3 +21,26 @@ module "gke" {
   pods_range_name     = module.subnet.pods_range_name
   deletion_protection = false
 }
+module "primary_nodepool" {
+  source             = "git::https://github.com/nkopskimbodo/kimbodo-tf-multicloud-modules//gcp/node_pool?ref=feature/add_gcp"
+  name               = "primary"
+  cluster_name       = module.gke.cluster_name
+  region             = var.region
+  machine_type       = "e2-small"
+  enable_autoscaling = false
+  fixed_node_count   = 2
+  node_labels = {
+    apptype = "workspaces"
+  }
+}
+module "secondary_nodepool" {
+  source             = "git::https://github.com/nkopskimbodo/kimbodo-tf-multicloud-modules//gcp/node_pool?ref=feature/add_gcp"
+  name               = "secondary"
+  cluster_name       = module.gke.cluster_name
+  region             = var.region
+  machine_type       = "ni-highmen-4"
+  enable_autoscaling = true
+  node_labels = {
+    apptype = "sessionsholder"
+  }
+}
