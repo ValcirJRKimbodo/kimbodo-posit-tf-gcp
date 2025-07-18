@@ -1,12 +1,14 @@
-name: CI/CD Terraform (dev-gcp)
+name: Terraform CI/CD
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
       - 'envs/dev-gcp/**'
   pull_request:
-    branches: [main]
+    branches:
+      - main
     paths:
       - 'envs/dev-gcp/**'
 
@@ -14,34 +16,27 @@ jobs:
   terraform:
     name: Terraform Plan & Apply (dev-gcp)
     runs-on: ubuntu-latest
+
+    # Use the custom Docker image with Terraform + SOPS + gcloud preinstalled
+    container:
+      image: kimbodovalcir/kimbodo-posit-actions:latest
+
     defaults:
       run:
         working-directory: envs/dev-gcp
-
-    permissions:
-      contents: read
-      id-token: write
-      pull-requests: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          version: 'latest'
-          service_account_key: "${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}"
-          project_id: 'gcp-k8s-demo-posit'
-
-      - name: Install SOPS
-        run: sudo apt-get update && sudo apt-get install -y sops
+      - name: Configure GCP credentials
+        run: |
+          echo "${{ secrets.GCP_KMS_SA_JSON }}" > /tmp/sa.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa.json
+          gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
 
       - name: Decrypt Terraform SA
         run: sops -d sa.enc.json > /tmp/terraform-sa.json
-
-      - name: Set GOOGLE_APPLICATION_CREDENTIALS
-        run: echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/terraform-sa.json" >> $GITHUB_ENV
 
       - name: Terraform Init
         run: terraform init
