@@ -1,9 +1,8 @@
-# output "gke_endpoint" {
-#   value       = module.gke.cluster_endpoint
-#   description = "Endereço para kubectl (lembre de gerar credenciais com gcloud/container auth)"
-# }
-
-output "vpc_id" {
-  value       = module.vpc.vpc_id
-  description = "VPC ID"
+output "gke_endpoint" {
+  value       = module.gke.cluster_endpoint
+  description = "Kubecl address (remember to grant with gcloud auth)"
+}
+output "statc_ip_address" {
+  value       = module.statc_ip.address
+  description = "public IP"
 }
